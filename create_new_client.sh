@@ -13,13 +13,14 @@ read -p "Enter new config name: " new_connection_name
 
 new_conf_name=$new_connection_name".conf"
 read -p "New config \"$config_dir/$new_conf_name\" will be created (Enter to continue, Ctrl^C to cancel)"
-
-new_generated_public_key=$(wg genkey | tee /etc/wireguard/${new_connection_name}_privatekey | wg pubkey > /etc/wireguard/${new_connection_name}_publickey)
+private_key_file="/etc/wireguard/${new_connection_name}_privatekey"
+public_key_file="/etc/wireguard/${new_connection_name}_publickey"
+new_generated_public_key="$(wg genkey | tee $private_key_file | wg pubkey | tee $public_key_file)"
 
 chmod 600 /etc/wireguard/${new_connection_name}_privatekey
 
 cp $config_dir/template.conf $config_dir/$new_conf_name
-private_key=$(< /etc/wireguard/${new_connection_name}_privatekey)
+private_key="$(cat ${private_key_file})"
 sed -i 's/PRIVATE_KEY/'"$private_key"'/;s/ADRESS_TO_GIVE/'"$new_address"'/' $config_dir/$new_conf_name
 
 echo "
