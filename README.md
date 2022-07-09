@@ -1,6 +1,15 @@
 # Simple setup of vpn server
 
-### Начало
+### Setup
+To setup simply run the folowing:
+
+```
+docker-compose up -d
+```
+
+------------------------------
+
+### TODO: delete
 Предлагаю пока тут описать что хочется и потом отредактировать чтобы был
 обычный README файл. А пока будет ТЗ/TODO файлик
 
