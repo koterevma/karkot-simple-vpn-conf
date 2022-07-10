@@ -31,7 +31,8 @@ services:
     container_name: tele_bot
     volumes:
       - ./tele_bot/data:/app/data
+      - ./wireguard/config:/app/wireguard
     environment:
       - TOKEN=TOKEN
-      - ADMINS="12344,12345"
+      - ADMINS=12344,12345
 

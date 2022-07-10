@@ -10,5 +10,6 @@ RUN pip3 install -r requirements.txt
 COPY . .
 
 VOLUME /app/data
+VOLUME /app/wireguard
 
 CMD [ "python3", "main.py" ]
