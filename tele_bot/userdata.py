@@ -62,7 +62,7 @@ def add_admins(admins: str) -> None:
         add_user(*admin_data)
 
 
-def update_user(user_id: int, data_path: str, is_admin: int | None = None):
+def update_user(user_id: int, data_path: str, is_admin: int = None):
     if is_admin is None:
         is_admin = get_user_data(user_id)[1]
     with sqlite3.connect(USERDATA_DB) as conn:

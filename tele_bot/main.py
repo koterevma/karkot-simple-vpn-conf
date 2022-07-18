@@ -53,14 +53,25 @@ async def help_(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def accept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Accept user and give them configuration"""
+    if update.message.from_user.id not in userdata.get_admin_ids():
+        await update.message.reply_text("Not an admin, can not accept a user")
+        return
+
     accepted_user_id = update.message.text.split()[1]
     new_config_dir = wgconf.get_new_config()
-    userdata.update_user(accepted_user_id, str(new_config_dir))
+    userdata.update_user(accepted_user_id, str(new_config_dir.absolute()))
+
     bot: Bot = context.bot
+    qr_file = new_config_dir / (new_config_dir.name + ".png")
+    conf_file = new_config_dir / (new_config_dir.name + ".conf")
+
     await bot.send_photo(accepted_user_id,
-            "Request accepted! Here's your configuration",
-            filename=new_config_dir / (new_config_dir.name + ".png"))
-    await bot.send_document(accepted_user_id, new_config_dir / (new_config_dir.name + ".conf"))
+            photo=qr_file.open("rb"),
+            caption="Request accepted! Here's your configuration",
+            filename=qr_file.name)
+    await bot.send_document(accepted_user_id,
+            conf_file.open("rb"),
+            filename=conf_file.name)
 
 
 def main() -> None:
