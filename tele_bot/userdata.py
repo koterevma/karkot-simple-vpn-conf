@@ -78,7 +78,7 @@ def get_user_data(id_: int) -> tuple[str, int]:
     with sqlite3.connect(USERDATA_DB) as conn:
         cur = conn.cursor()
         result = cur.execute(GET_USER_DATA, (id_,)).fetchone()
-        if result == None:
+        if result is None:
             return (None, None)
         return result
 

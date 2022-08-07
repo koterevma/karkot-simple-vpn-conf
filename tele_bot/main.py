@@ -39,7 +39,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = "User already registred, waiting approval from admins"
     if data_path is not None:
         text = f"User already exists, type /get_config to get configuration"
-    if data_path is None and is_admin is None:
+    elif is_admin is None:
         userdata.add_user(user.id, None, 0)
         await send_confirmation_request(context.bot, user.username, user.id)
         text = "Registred new user and send confirmation message to admins"
