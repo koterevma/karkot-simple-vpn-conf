@@ -11,7 +11,7 @@ import os
 import userdata
 import wgconf
 
-from telegram import ForceReply, Update, Bot
+from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from telegram.constants import ParseMode
 
@@ -35,6 +35,8 @@ async def send_confirmation_request(bot: Bot, username: str, user_id: int) -> No
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
+    if user is None:
+        return
     data_path, is_admin = userdata.get_user_data(user.id)
     text = "User already registred, waiting approval from admins"
     if data_path is not None:
@@ -46,7 +48,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(text)
 
 
-async def help_(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def help_(update: Update, _: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
     await update.message.reply_text("Type /start to send a request for a vpn configuration")
 
@@ -57,7 +59,7 @@ async def accept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text("Not an admin, can not accept a user")
         return
 
-    accepted_user_id = update.message.text.split()[1]
+    accepted_user_id = int(update.message.text.split()[1])
     new_config_dir = wgconf.get_new_config()
     userdata.update_user(accepted_user_id, str(new_config_dir.absolute()))
 
@@ -85,6 +87,9 @@ def main() -> None:
 
     # Create the Application and pass it bot's token.
     token = os.getenv("TOKEN")
+    if token is None:
+        raise RuntimeError("Environment variable TOKEN is not set")
+
     application = Application.builder().token(token).build()
 
     # on different commands - answer in Telegram

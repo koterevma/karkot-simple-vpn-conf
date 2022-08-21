@@ -46,7 +46,7 @@ with sqlite3.connect(USERDATA_DB) as conn:
     conn.commit()
 
 
-def add_user(user_id: int, data_path: str, is_admin: int) -> None:
+def add_user(user_id: int, data_path: str | None, is_admin: int) -> None:
     with sqlite3.connect(USERDATA_DB) as conn:
         cur = conn.cursor()
         try:
@@ -57,12 +57,12 @@ def add_user(user_id: int, data_path: str, is_admin: int) -> None:
     
 
 def add_admins(admins: str) -> None:
-    admins_data = [(admin_id, None, 1) for admin_id in admins.split(",")]
+    admins_data = [(int(admin_id), None, 1) for admin_id in admins.split(",")]
     for admin_data in admins_data:
         add_user(*admin_data)
 
 
-def update_user(user_id: int, data_path: str, is_admin: int = None):
+def update_user(user_id: int, data_path: str, is_admin: int | None = None):
     if is_admin is None:
         is_admin = get_user_data(user_id)[1]
     with sqlite3.connect(USERDATA_DB) as conn:
@@ -74,7 +74,7 @@ def update_user(user_id: int, data_path: str, is_admin: int = None):
             logger.error("In update_user: " + str(e))
 
 
-def get_user_data(id_: int) -> tuple[str, int]:
+def get_user_data(id_: int) -> tuple[str | None, int | None]:
     with sqlite3.connect(USERDATA_DB) as conn:
         cur = conn.cursor()
         result = cur.execute(GET_USER_DATA, (id_,)).fetchone()
