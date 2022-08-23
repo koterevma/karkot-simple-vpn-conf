@@ -8,12 +8,14 @@ Ships in docker container
 
 import logging
 import os
+
 import userdata
 import wgconf
 
 from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from telegram.constants import ParseMode
+from classes import User
 
 
 # Enable logging
@@ -27,23 +29,23 @@ async def send_confirmation_request(bot: Bot, username: str, user_id: int) -> No
     admin_ids = userdata.get_admin_ids()
     for admin_id in admin_ids:
         await bot.send_message(
-                admin_id, rf"@{username} requests config\. `/accept {user_id}`",
-                parse_mode=ParseMode.MARKDOWN_V2)
+            admin_id, rf"@{username} requests config\. `/accept {user_id}`",
+            parse_mode=ParseMode.MARKDOWN_V2)
 
 
 # Start command - register user and send confirmation request to admins
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
-    user = update.effective_user
-    if user is None:
+    telegram_user = update.effective_user
+    if telegram_user is None:
         return
-    data_path, is_admin = userdata.get_user_data(user.id)
+    user_from_database = userdata.get_user_data(telegram_user.id)
     text = "User already registred, waiting approval from admins"
-    if data_path is not None:
-        text = f"User already exists, type /get_config to get configuration"
-    elif is_admin is None:
-        userdata.add_user(user.id, None, 0)
-        await send_confirmation_request(context.bot, user.username, user.id)
+    if user_from_database.config_path is not None:
+        text = "User already exists, type /get_config to get configuration"
+    elif user_from_database.is_admin is None:
+        userdata.add_user(User(telegram_user.id, None, 0))
+        await send_confirmation_request(context.bot, telegram_user.username, telegram_user.id)
         text = "Registred new user and send confirmation message to admins"
     await update.message.reply_text(text)
 
@@ -61,7 +63,7 @@ async def accept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     accepted_user_id = int(update.message.text.split()[1])
     new_config_dir = wgconf.get_new_config()
-    userdata.update_user(accepted_user_id, str(new_config_dir.absolute()))
+    userdata.update_user(User(accepted_user_id, str(new_config_dir.absolute())))
 
     bot: Bot = context.bot
     qr_file = new_config_dir / (new_config_dir.name + ".png")
@@ -83,7 +85,7 @@ def main() -> None:
     admins = os.getenv("ADMINS")
     if admins is not None:
         logging.info(f"Got {admins=}")
-        userdata.add_admins(admins)
+        userdata.add_admins(map(int, admins.split(",")))
 
     # Create the Application and pass it bot's token.
     token = os.getenv("TOKEN")
