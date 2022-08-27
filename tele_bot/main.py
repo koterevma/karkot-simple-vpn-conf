@@ -13,7 +13,13 @@ import userdata
 import wgconf
 
 from telegram import Update, Bot
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import (
+        Application,
+        CommandHandler,
+        ContextTypes,
+        MessageHandler
+)
+from telegram.ext.filters import TEXT, COMMAND
 from telegram.constants import ParseMode
 from classes import User
 
@@ -100,7 +106,7 @@ def main() -> None:
     application.add_handler(CommandHandler("accept", accept))
 
     # on non command i.e message - print help
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, help_))
+    application.add_handler(MessageHandler(TEXT & ~COMMAND, help_))
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
