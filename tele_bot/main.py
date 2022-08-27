@@ -68,8 +68,12 @@ async def accept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     accepted_user_id = int(update.message.text.split()[1])
+    user_from_database = userdata.get_user_data(accepted_user_id)
     new_config_dir = wgconf.get_new_config()
-    userdata.update_user(User(accepted_user_id, str(new_config_dir.absolute())))
+    userdata.update_user(User(
+                accepted_user_id,
+                str(new_config_dir.absolute()),
+                user_from_database.is_admin))
 
     bot: Bot = context.bot
     qr_file = new_config_dir / (new_config_dir.name + ".png")
