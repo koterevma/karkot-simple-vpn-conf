@@ -33,7 +33,7 @@ GET_USER_DATA = (
 
 UPDATE_USER = (
         "UPDATE user "
-        "SET config_path = :config_path "
+        "SET config_path = :config_path, "
         "is_admin = :is_admin "
         "WHERE id = :id;"
 )
