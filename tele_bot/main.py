@@ -45,14 +45,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     telegram_user = update.effective_user
     if telegram_user is None:
         return
+
     user_from_database = userdata.get_user_data(telegram_user.id)
     text = "User already registred, waiting approval from admins"
-    if user_from_database.config_path is not None:
-        text = "User already exists, type /get_config to get configuration"
-    elif user_from_database.is_admin is None:
-        userdata.add_user(User(telegram_user.id, None, 0))
+    if user_from_database is None:
+        userdata.add_user(User(telegram_user.id))
         await send_confirmation_request(context.bot, telegram_user.username, telegram_user.id)
         text = "Registred new user and send confirmation message to admins"
+    elif user_from_database.config_path is not None:
+        text = "User already exists, type /get_config to get configuration"
     await update.message.reply_text(text)
 
 
@@ -68,14 +69,12 @@ async def accept(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     accepted_user_id = int(update.message.text.split()[1])
-    user_from_database = userdata.get_user_data(accepted_user_id)
     new_config_dir = wgconf.get_new_config()
-    userdata.update_user(User(
+    userdata.update_user(
                 accepted_user_id,
-                str(new_config_dir.absolute()),
-                user_from_database.is_admin))
+                config_path=str(new_config_dir.absolute()))
 
-    bot: Bot = context.bot
+    bot = context.bot
     qr_file = new_config_dir / (new_config_dir.name + ".png")
     conf_file = new_config_dir / (new_config_dir.name + ".conf")
 
