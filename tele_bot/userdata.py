@@ -107,4 +107,3 @@ def get_admin_ids() -> list[int]:
         cur = conn.cursor()
         result = cur.execute(GET_ADMIN_IDS).fetchall()
         return [i[0] for i in result]
-

@@ -8,10 +8,6 @@ Ships in docker container
 
 import logging
 import os
-
-import userdata
-import wgconf
-
 from telegram import Update, Bot
 from telegram.ext import (
         Application,
@@ -21,6 +17,10 @@ from telegram.ext import (
 )
 from telegram.ext.filters import TEXT, COMMAND
 from telegram.constants import ParseMode
+
+import userdata
+import wgconf
+
 from classes import User
 
 
@@ -117,4 +117,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

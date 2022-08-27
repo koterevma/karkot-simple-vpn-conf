@@ -29,11 +29,11 @@ def get_new_config() -> Path:
     occupied_file = occupied_dir / "occupied"
     occupied_file.touch(0o600)
 
-    logging.info(f"Occupied {occupied_dir.name}, remaining {len(unoccupied_configs) - 1}")
+    logging.info(f"Occupied {occupied_dir.name}, "
+                 "remaining {len(unoccupied_configs) - 1}")
 
     return occupied_dir
 
 
 def get_unoccupied_count():
     return len(_get_unoccupied_configs())
-
