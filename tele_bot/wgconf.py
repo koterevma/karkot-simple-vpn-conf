@@ -16,7 +16,7 @@ def _get_unoccupied_configs() -> list[Path]:
     for conf_dir in wg_configs_dir.glob("peer*"):
         if not (conf_dir / "occupied").is_file():
             unoccupied_configs.append(conf_dir)
-    
+
     return unoccupied_configs
 
 

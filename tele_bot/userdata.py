@@ -58,7 +58,7 @@ def add_user(user: User) -> None:
             conn.commit()
         except sqlite3.IntegrityError:
             logger.exception(f"User {user.id} not added, already exists in database")
-    
+
 
 def add_admins(admin_ids: Iterable[int]) -> None:
     for admin_id in admin_ids:
