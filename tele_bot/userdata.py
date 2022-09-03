@@ -26,7 +26,7 @@ ADD_USER = (
 )
 
 GET_USER_DATA = (
-        "SELECT config_path, is_admin "
+        "SELECT is_admin, config_path "
         "FROM user "
         "WHERE id = :id;"
 )
@@ -99,7 +99,7 @@ def get_user_data(id_: int, /) -> User | None:
         result = cur.execute(GET_USER_DATA, {"id": id_}).fetchone()
         if result is None:
             return None
-        return User(*result)
+        return User(id_, *result)
 
 
 def get_admin_ids() -> list[int]:
