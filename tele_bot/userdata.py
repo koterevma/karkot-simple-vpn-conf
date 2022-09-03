@@ -1,6 +1,10 @@
-import sqlite3
 import logging
+import sqlite3
+
+from classes import User
+from dataclasses import asdict
 from pathlib import Path
+from typing import Iterable
 
 
 logger = logging.getLogger(__name__)
@@ -11,27 +15,27 @@ USERDATA_DB = Path("./data/userdata.db")
 CREATE_TABLE = (
         "CREATE TABLE IF NOT EXISTS user("
         "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
-        "data_path TEXT, "
+        "config_path TEXT, "
         "is_admin INTEGER"
         ");"
 )
 
 ADD_USER = (
-        "INSERT INTO user (id, data_path, is_admin)"
-        "VALUES(?, ?, ?);"
+        "INSERT INTO user (id, config_path, is_admin) "
+        "VALUES(:id, :config_path, :is_admin);"
 )
 
 GET_USER_DATA = (
-        "SELECT data_path, is_admin "
+        "SELECT config_path, is_admin "
         "FROM user "
-        "WHERE id = ?;"
+        "WHERE id = :id;"
 )
 
 UPDATE_USER = (
         "UPDATE user "
-        "SET data_path = ? "
-        "is_admin = ? "
-        "WHERE id = ?;"
+        "SET config_path = :config_path, "
+        "is_admin = :is_admin "
+        "WHERE id = :id;"
 )
 
 GET_ADMIN_IDS = (
@@ -46,41 +50,56 @@ with sqlite3.connect(USERDATA_DB) as conn:
     conn.commit()
 
 
-def add_user(user_id: int, data_path: str, is_admin: int) -> None:
+def add_user(user: User) -> None:
     with sqlite3.connect(USERDATA_DB) as conn:
         cur = conn.cursor()
         try:
-            cur.execute(ADD_USER, (user_id, data_path, is_admin))
+            cur.execute(ADD_USER, asdict(user))
             conn.commit()
         except sqlite3.IntegrityError:
-            logger.warn(f"User {user_id} not added, already exists in database")
-    
-
-def add_admins(admins: str) -> None:
-    admins_data = [(admin_id, None, 1) for admin_id in admins.split(",")]
-    for admin_data in admins_data:
-        add_user(*admin_data)
+            logger.exception(f"User {user.id} not added, already exists in database")
 
 
-def update_user(user_id: int, data_path: str, is_admin: int = None):
+def add_admins(admin_ids: Iterable[int]) -> None:
+    for admin_id in admin_ids:
+        add_user(User(id=admin_id, config_path=None, is_admin=1))
+
+
+def update_user(id_: int, /, *,
+                is_admin: int | None = None,
+                config_path: str | None = None):
+    if is_admin is None and config_path is None:
+        logger.error("Neither is_admin nor config_path were specified")
+        return
+
+    existing_user = get_user_data(id_)
+    if existing_user is None:
+        logger.error("Can't update user since it does not exist")
+        return
+
     if is_admin is None:
-        is_admin = get_user_data(user_id)[1]
+        is_admin = existing_user.is_admin
+
+    if config_path is None:
+        config_path = existing_user.config_path
+
+    updated_user = User(id_, is_admin, config_path)
     with sqlite3.connect(USERDATA_DB) as conn:
         cur = conn.cursor()
         try:
-            cur.execute(UPDATE_USER, (data_path, is_admin, user_id))
+            cur.execute(UPDATE_USER, asdict(updated_user))
             conn.commit()
         except sqlite3.Error as e:
             logger.error("In update_user: " + str(e))
 
 
-def get_user_data(id_: int) -> tuple[str, int]:
+def get_user_data(id_: int, /) -> User | None:
     with sqlite3.connect(USERDATA_DB) as conn:
         cur = conn.cursor()
-        result = cur.execute(GET_USER_DATA, (id_,)).fetchone()
+        result = cur.execute(GET_USER_DATA, {"id": id_}).fetchone()
         if result is None:
-            return (None, None)
-        return result
+            return None
+        return User(*result)
 
 
 def get_admin_ids() -> list[int]:
@@ -88,4 +107,3 @@ def get_admin_ids() -> list[int]:
         cur = conn.cursor()
         result = cur.execute(GET_ADMIN_IDS).fetchall()
         return [i[0] for i in result]
-
