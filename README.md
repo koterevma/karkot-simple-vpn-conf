@@ -10,7 +10,7 @@ docker-compose up -d
 ------------------------------
 
 ### For user
-To run VPN on tour device - download Wireguard app ([see official cite](https://www.wireguard.com/install/))
+To run VPN on tour device - download Wireguard app ([see official site](https://www.wireguard.com/install/))
 
 After you recieved configuration from telegram bot, import it into application.
 Also bot sends a qr code (Android and IOS apps allow to add configuration by
