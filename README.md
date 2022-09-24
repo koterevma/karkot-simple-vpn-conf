@@ -9,16 +9,9 @@ docker-compose up -d
 
 ------------------------------
 
-### TODO: delete
-Предлагаю пока тут описать что хочется и потом отредактировать чтобы был
-обычный README файл. А пока будет ТЗ/TODO файлик
+### For user
+To run VPN on tour device - download Wireguard app ([see official cite](https://www.wireguard.com/install/))
 
-Хочется:
-- Чтобы пользователь мог просто клонировать репозиторий на новый сервер
-и написать `sudo make install` или `sudo ./install.sh`
-- Использовать пакет aiogram https://github.com/aiogram/aiogram
-- Может быть sqlite, потому что пайтон имеет встроенную поддержку этой БД, плюс
-ее возможностей нам вполне хватит (А вообще нет, хочется развернуть свой
-сервер mariadb, заодно может сойти как работа на зачет по базам данных)
-- Сделать так чтобы приложение было запущено всегда, когда
-запущен сервер. Такого эффекта можно добиться сделав systemd-service
+After you recieved configuration from telegram bot, import it into application.
+Also bot sends a qr code (Android and IOS apps allow to add configuration by
+scanning qr code insread of downloading configuration file)
