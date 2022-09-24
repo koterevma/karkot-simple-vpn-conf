@@ -60,7 +60,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def help_(update: Update, _: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
-    await update.message.reply_text("Type /start to send a request for a vpn configuration")
+    await update.message.reply_text("Type /start to request config from admin.\n"
+            "Help with setting VPN on your device here "
+            "https://github.com/koterevma/karkot-simple-vpn-conf#for-user")
 
 
 async def send_config(user_id: int, config_dir: Path, context: ContextTypes.DEFAULT_TYPE) -> None:
