@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+CONFIG_DIR="$HOME"/karkot-simple-vpn-conf/wireguard/config
+
+set -e
+set -u
+peer_name=$1
+peer_base64=$(cat "${CONFIG_DIR}/${peer_name}/publickey-${peer_name}")
+docker exec -e WG_COLOR_MODE=always wireguard wg show | grep --color -A 5 "${peer_base64}"

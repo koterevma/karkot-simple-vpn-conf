@@ -35,4 +35,5 @@ services:
     environment:
       - TOKEN=TOKEN
       - ADMINS=12344,12345
+    restart: unless-stopped
 
